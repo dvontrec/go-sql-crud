@@ -23,6 +23,7 @@ type homie struct {
 }
 
 func main() {
+	fmt.Printf("Server is running ")
 	// Allows for use of env variables
 	dbuser := os.Getenv("DBUSER")
 	dbpassword := os.Getenv("DBPASSWORD")
