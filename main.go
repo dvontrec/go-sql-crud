@@ -18,8 +18,8 @@ var err error
 
 // Create a homie struct
 type homie struct {
-	ID   int64
-	Name string
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 func main() {
@@ -71,7 +71,7 @@ func homies(w http.ResponseWriter, req *http.Request) {
 
 	// variables for data to print
 	var name string
-	var id int64
+	var id int
 
 	// loop to end of rows
 	for rows.Next() {
