@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -21,8 +23,15 @@ type homie struct {
 }
 
 func main() {
-	// "user:password@tcp(localhost:555)/dbname?charset=utf8"
-	db, err = sql.Open("mysql", "root:password@(localhost)/homies?charset=utf8") // connects to local host using local credentials
+	// Allows for use of env variables
+	dbuser := os.Getenv("DBUSER")
+	dbpassword := os.Getenv("DBPASSWORD")
+	dbhost := os.Getenv("DBHOST")
+	dbname := os.Getenv("DBNAME")
+	// combines env variables into a database path
+	dbpath := fmt.Sprint(dbuser, ":", dbpassword, "@(", dbhost, ")/", dbname)
+
+	db, err = sql.Open("mysql", dbpath) // connects to local host using local credentials
 	check(err)
 	// defer the close
 	defer db.Close()
@@ -34,6 +43,7 @@ func main() {
 	// Setup routes
 	http.HandleFunc("/", index)
 	http.HandleFunc("/homies", homies)
+	http.HandleFunc("/newHomie", newHomie)
 	// http.HandleFunc("/create", create)
 	// http.HandleFunc("/insert", insert)
 	// http.HandleFunc("/read", read)
@@ -76,6 +86,14 @@ func homies(w http.ResponseWriter, req *http.Request) {
 		h = append(h, p)
 	}
 	err = json.NewEncoder(w).Encode(h)
+}
+
+func newHomie(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		fmt.Fprintln(w, "Method Not Allowed")
+		return
+	}
+	log.Println(req.FormValue("name"))
 }
 
 // func create(w http.ResponseWriter, req *http.Request) {
