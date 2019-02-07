@@ -90,10 +90,21 @@ func homies(w http.ResponseWriter, req *http.Request) {
 
 func newHomie(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
-		fmt.Fprintln(w, "Method Not Allowed")
+		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
 	}
+	name := req.FormValue("name")
 	log.Println(req.FormValue("name"))
+	stms, err := db.Prepare("INSERT INTO homies (hName) VALUES(\"" + name + "\");")
+	check(err)
+
+	r, err := stms.Exec()
+	check(err)
+
+	n, err := r.RowsAffected()
+	check(err)
+
+	fmt.Fprintln(w, "Homie CREATED", n)
 }
 
 // func create(w http.ResponseWriter, req *http.Request) {
